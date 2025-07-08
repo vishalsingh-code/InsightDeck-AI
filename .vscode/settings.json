@@ -1,0 +1,11 @@
+{
+    "python.defaultInterpreterPath": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "python.terminal.activateEnvironment": false,
+    "files.associations": {
+        "*.py": "python"
+    },
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": false,
+    "python.formatting.provider": "black"
+}

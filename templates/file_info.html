@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 File Analysis - CSV/Excel-to-PowerPoint AI Analyzer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.05);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item span {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .sheets-list {
+            margin-top: 15px;
+        }
+
+        .sheet-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e1e8ed;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sheet-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .sheet-info {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .sheet-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .sheet-status.has-data {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .sheet-status.empty {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e1e8ed;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progress 2s infinite;
+        }
+
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .result-section {
+            display: none;
+            background: #d5f4e6;
+            border: 2px solid #27ae60;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .result-section.error {
+            background: #fee;
+            border-color: #e74c3c;
+        }
+
+        .columns-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .column-tag {
+            background: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 File Analysis</h1>
+            <div class="file-name">{{ filename }}</div>
+        </div>
+
+        <div class="content">
+            {% if file_info.error %}
+                <div class="info-section" style="border-left-color: #e74c3c;">
+                    <h3>❌ Error Reading File</h3>
+                    <p style="color: #e74c3c;">{{ file_info.error }}</p>
+                </div>
+            {% else %}
+                <div class="info-section">
+                    <h3>📊 File Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>File Type</strong>
+                            <span>{{ file_info.type.upper() }}</span>
+                        </div>
+                        
+                        {% if file_info.type == 'csv' %}
+                            <div class="info-item">
+                                <strong>Rows</strong>
+                                <span>{{ "{:,}".format(file_info.rows) }}</span>
+                            </div>
+                            <div class="info-item">
+                                <strong>Columns</strong>
+                                <span>{{ file_info.columns }}</span>
+                            </div>
+                        {% elif file_info.type == 'excel' %}
+                            <div class="info-item">
+                                <strong>Total Sheets</strong>
+                                <span>{{ file_info.total_sheets }}</span>
+                            </div>
+                            <div class="info-item">
+                                <strong>Sheets with Data</strong>
+                                <span>{{ file_info.sheets_with_data }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if file_info.type == 'csv' and file_info.column_names %}
+                        <div>
+                            <strong>Columns:</strong>
+                            <div class="columns-preview">
+                                {% for column in file_info.column_names %}
+                                    <span class="column-tag">{{ column }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if file_info.type == 'excel' and file_info.sheets %}
+                        <div class="sheets-list">
+                            <strong>Available Sheets:</strong>
+                            {% for sheet_name, sheet_info in file_info.sheets.items() %}
+                                <div class="sheet-item">
+                                    <div>
+                                        <div class="sheet-name">{{ sheet_name }}</div>
+                                        <div class="sheet-info">{{ "{:,}".format(sheet_info.estimated_records) }} rows</div>
+                                    </div>
+                                    <div class="sheet-status {{ 'has-data' if sheet_info.has_data else 'empty' }}">
+                                        {{ '✅ Has Data' if sheet_info.has_data else '❌ Empty' }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-section">
+                    <h3>🚀 Generate Presentation</h3>
+                    <form id="generateForm">
+                        <input type="hidden" name="file_path" value="{{ file_path }}">
+                        
+                        {% if file_info.type == 'excel' and file_info.sheets %}
+                            <div class="form-group">
+                                <label for="sheet_name">Select Sheet:</label>
+                                <select name="sheet_name" id="sheet_name">
+                                    <option value="">Auto-select best sheet</option>
+                                    {% for sheet_name, sheet_info in file_info.sheets.items() %}
+                                        {% if sheet_info.has_data %}
+                                            <option value="{{ sheet_name }}">{{ sheet_name }} ({{ "{:,}".format(sheet_info.estimated_records) }} rows)</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="output_filename">Output Filename (optional):</label>
+                            <input type="text" name="output_filename" id="output_filename" placeholder="my_presentation.pptx">
+                        </div>
+
+                        <button type="submit" class="btn" id="generateBtn">
+                            🎯 Generate Presentation
+                        </button>
+                    </form>
+
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill"></div>
+                    </div>
+
+                    <div class="result-section" id="resultSection">
+                        <div id="resultMessage"></div>
+                        <div id="downloadSection" style="display: none;">
+                            <a href="#" class="btn" id="downloadBtn">📥 Download Presentation</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/" class="btn btn-secondary">🔙 Upload Another File</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('generateBtn');
+            const progressBar = document.getElementById('progressBar');
+            const resultSection = document.getElementById('resultSection');
+            const resultMessage = document.getElementById('resultMessage');
+            const downloadSection = document.getElementById('downloadSection');
+            
+            // Reset UI
+            btn.textContent = '⏳ Generating...';
+            btn.disabled = true;
+            progressBar.style.display = 'block';
+            resultSection.style.display = 'none';
+            resultSection.className = 'result-section';
+            
+            try {
+                const formData = new FormData(this);
+                
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                progressBar.style.display = 'none';
+                resultSection.style.display = 'block';
+                
+                if (result.success) {
+                    resultSection.classList.add('success');
+                    resultMessage.innerHTML = `
+                        <h3>✅ ${result.message}</h3>
+                        <p>Your presentation has been generated successfully!</p>
+                    `;
+                    
+                    document.getElementById('downloadBtn').href = result.download_url;
+                    downloadSection.style.display = 'block';
+                } else {
+                    throw new Error(result.error || 'Unknown error occurred');
+                }
+                
+            } catch (error) {
+                progressBar.style.display = 'none';
+                resultSection.style.display = 'block';
+                resultSection.classList.add('error');
+                resultMessage.innerHTML = `
+                    <h3>❌ Generation Failed</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+            
+            btn.textContent = '🎯 Generate Presentation';
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>

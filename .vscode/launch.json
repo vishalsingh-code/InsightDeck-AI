@@ -1,0 +1,31 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "python": "/Library/Developer/CommandLineTools/usr/bin/python3"
+        },
+        {
+            "name": "PPT Generator",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/ppt_generator.py",
+            "console": "integratedTerminal",
+            "python": "/Library/Developer/CommandLineTools/usr/bin/python3"
+        },
+        {
+            "name": "Advanced Charts Generator",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/advanced_ppt_charts.py",
+            "args": ["AI Technology Trends"],
+            "console": "integratedTerminal",
+            "python": "/Library/Developer/CommandLineTools/usr/bin/python3"
+        }
+    ]
+}
