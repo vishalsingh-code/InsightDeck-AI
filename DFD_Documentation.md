@@ -6,26 +6,28 @@ The CSV-to-PowerPoint AI Analyzer is a system that transforms CSV data files int
 ## DFD Level 0 - Context Diagram
 
 ```
-                    ┌─────────────────────────────────────────┐
-                    │                                         │
-                    │        CSV-to-PowerPoint                │
-           CSV ────▶│         AI Analyzer                     │────▶ PowerPoint
-          File      │                                         │     Presentation
-                    │                                         │
-     OpenAI API ────▶│                                         │
-      Response      │                                         │
-                    │                                         │
-                    └─────────────────────────────────────────┘
+                    ┌─────────────────────────────────────────────────────────┐
+                    │                                                         │
+                    │        CSV-to-PowerPoint                                │
+           CSV ────▶│         AI Analyzer                                     │────▶ PowerPoint
+          File      │                                                         │     Presentation
+                    │                                                         │
+     OpenAI API ────▶│                                                         │
+      Response      │                                                         │
+                    │                                                         │
+    User Config ────▶│                                                         │
+                    │                                                         │
+                    └─────────────────────────────────────────────────────────┘
                                         │
                                         ▼
-                                Chart Images
+                                Enhanced Slide Content
                                 (Temporary Files)
 ```
 
 ### External Entities:
-- **User**: Provides CSV file, receives PowerPoint presentation
+- **User**: Provides CSV file and configures cleaning options, receives PowerPoint presentation
 - **OpenAI API**: Provides AI-generated insights and analysis
-- **File System**: Stores temporary chart images and output files
+- **File System**: Stores temporary chart images, enhanced temp files, and output files
 
 ---
 
@@ -37,7 +39,16 @@ The CSV-to-PowerPoint AI Analyzer is a system that transforms CSV data files int
                                ▼
                     ┌─────────────────────┐
                     │    1.0 LOAD &       │
-                    │   ANALYZE CSV       │◄─── Data Quality Rules
+                    │   CLEAN DATA        │◄─── Data Quality Rules
+                    │                     │
+                    └──────────┬──────────┘
+                               │
+                        Cleaned Data
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   2.0 ANALYZE       │
+                    │   CSV DATA          │◄─── Statistical Methods
                     │                     │
                     └──────────┬──────────┘
                                │
@@ -45,16 +56,16 @@ The CSV-to-PowerPoint AI Analyzer is a system that transforms CSV data files int
                                │
                                ▼
                     ┌─────────────────────┐      API Request
-                    │   2.0 GENERATE      │─────────────────┐
+                    │   3.0 GENERATE      │─────────────────┐
                     │  AI INSIGHTS        │                 │
-                    │                     │◄────────────────┘
+                    │                     │◄─────────────────┘
                     └──────────┬──────────┘      AI Response
                                │
-                        Structured Insights
+                        Enhanced Insights
                                │
                                ▼
                     ┌─────────────────────┐
-                    │   3.0 CREATE        │
+                    │   4.0 CREATE        │
                     │   CHARTS            │
                     │                     │
                     └──────────┬──────────┘
@@ -63,7 +74,7 @@ The CSV-to-PowerPoint AI Analyzer is a system that transforms CSV data files int
                                │
                                ▼
                     ┌─────────────────────┐      Chart Files
-                    │   4.0 BUILD         │◄─────────────────
+                    │   5.0 BUILD         │◄─────────────────
                     │  PRESENTATION       │
                     │                     │
                     └──────────┬──────────┘
@@ -222,26 +233,35 @@ Structured Insights + Chart Files
 - **Structure**: Rows and columns as read from CSV
 - **Access**: Read-only after initial load
 
-### D2: ANALYSIS_RESULTS
+### D2: CLEANED_DATA
+- **Content**: Cleaned and validated data after quality processing:
+  - Multi-encoding detection and correction
+  - Missing value handling and outlier removal
+  - Data type optimization and normalization
+  - Business rule validation
+- **Structure**: Cleaned pandas DataFrame with quality metrics
+- **Access**: Read for analysis and processing
+
+### D3: ANALYSIS_RESULTS
 - **Content**: Comprehensive data analysis including:
   - Statistical summaries (mean, median, std, etc.)
   - Data quality metrics (missing values, duplicates)
-  - Correlation matrices
-  - Pattern identification
-  - Column classifications
-- **Structure**: Nested dictionary with analysis categories
+  - Correlation matrices and outlier detection
+  - Pattern identification and cleaning summary
+  - Column classifications and data completeness
+- **Structure**: Enhanced nested dictionary with analysis categories
 - **Access**: Read for AI insight generation and chart creation
 
-### D3: STRUCTURED_INSIGHTS
+### D4: STRUCTURED_INSIGHTS
 - **Content**: AI-generated and enhanced insights including:
   - Presentation title and structure
-  - Key findings and insights
-  - Chart recommendations
-  - Slide content specifications
-- **Structure**: JSON-like dictionary with presentation metadata
+  - Key findings and insights (5-8 bullet points per slide)
+  - Chart recommendations with proper y-columns
+  - Slide content specifications with detailed bullet points
+- **Structure**: JSON-like dictionary with enhanced presentation metadata
 - **Access**: Read for presentation building
 
-### D4: CHART_FILES
+### D5: CHART_FILES
 - **Content**: Temporary PNG files for charts
 - **Structure**: File paths to chart images
 - **Access**: Read for presentation building, deleted after completion
@@ -277,45 +297,60 @@ Structured Insights + Chart Files
 
 ## Process Specifications
 
-### 1.0 LOAD & ANALYZE CSV
+### 1.0 LOAD & CLEAN DATA
 - **Input**: CSV file path
-- **Output**: Comprehensive data analysis
+- **Output**: Cleaned and validated data
 - **Processing**: 
-  - Load CSV with pandas
-  - Identify column types (numeric, categorical, datetime)
-  - Calculate statistical summaries
-  - Detect missing values and outliers
-  - Analyze correlations
-  - Identify data patterns
+  - Multi-encoding detection (UTF-8, UTF-8-sig, Latin1, ISO-8859-1)
+  - BOM handling and column name cleaning
+  - Missing value detection and intelligent handling
+  - Duplicate removal and data type optimization
+  - Outlier detection using IQR method with smart removal
+  - Business rule validation and consistency checks
+  - Data quality metrics reporting
 
-### 2.0 GENERATE AI INSIGHTS
-- **Input**: Data analysis results
-- **Output**: Structured presentation insights
+### 2.0 ANALYZE CSV DATA
+- **Input**: Cleaned data
+- **Output**: Comprehensive data analysis
 - **Processing**:
-  - Build comprehensive data summary
-  - Create AI prompt with analysis context
-  - Call OpenAI GPT-3.5-turbo API
-  - Parse JSON response
-  - Validate and enhance with smart defaults
+  - Identify column types (numeric, categorical, datetime)
+  - Calculate statistical summaries with outlier analysis
+  - Detect correlations and strong relationships
+  - Analyze data patterns and distributions
+  - Generate data quality assessment
+  - Create cleaning summary report
 
-### 3.0 CREATE CHARTS
+### 3.0 GENERATE AI INSIGHTS
+- **Input**: Data analysis results
+- **Output**: Enhanced structured presentation insights
+- **Processing**:
+  - Build comprehensive data summary with cleaning details
+  - Create enhanced AI prompt with 5-8 bullet points per slide
+  - Call OpenAI GPT-3.5-turbo API with detailed requirements
+  - Parse JSON response with enhanced slide content
+  - Validate and enhance with smart defaults
+  - Generate multiple detailed slides (Executive Summary, Key Findings, Quality Assessment)
+
+### 4.0 CREATE CHARTS
 - **Input**: Chart specifications from insights
 - **Output**: Chart image files
 - **Processing**:
   - Generate bar, pie, line, scatter, and heatmap charts
   - Apply professional styling with seaborn
+  - Handle proper y-column specifications for all chart types
   - Save as high-resolution PNG files
   - Handle chart creation errors with fallbacks
 
-### 4.0 BUILD PRESENTATION
-- **Input**: Structured insights and chart files
+### 5.0 BUILD PRESENTATION
+- **Input**: Enhanced insights and chart files
 - **Output**: PowerPoint presentation file
 - **Processing**:
-  - Create presentation with blank layouts
-  - Add title, content, and chart slides
-  - Apply consistent formatting and positioning
-  - Embed chart images
-  - Save as PPTX file
+  - Create presentation with blank layouts for full control
+  - Add title, executive summary, findings, and chart slides
+  - Apply consistent formatting with proper spacing
+  - Embed chart images with optimal positioning
+  - Generate comprehensive bullet points (5-8 per slide)
+  - Save as PPTX file with enhanced content
 
 ---
 
