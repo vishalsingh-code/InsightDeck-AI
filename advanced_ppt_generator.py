@@ -661,6 +661,7 @@ class CSVPPTGenerator:
         
         # Build comprehensive data summary for AI
         data_summary = self._build_comprehensive_data_summary(analysis)
+        print("\n Build comprehensive data summary for AI:\n", data_summary)
         prompt = (
             "You are an expert data analyst creating a comprehensive presentation from this CSV dataset analysis.\n\n"
             f"{data_summary}\n\n"
@@ -1229,7 +1230,7 @@ class CSVPPTGenerator:
         analysis = self.load_and_analyze_data(file_path, sheet_name, named_range)
         
 
-        print(f"🤖 Generating insights with AI..")
+        print(f"🤖 Generating insights with AI...")
         structure = self.generate_insights_with_ai(analysis)
 
         if output_filename is None:
